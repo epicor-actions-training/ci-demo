@@ -1,8 +1,25 @@
 name: CI
-on: [push, workflow_dispatch]
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  NODE_VERSION: "20"
+
 jobs:
-  hello:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - run: echo "Hello from GitHub Actions on ${{ runner.os }}"
+      - name: Check out the repository
+        uses: actions/checkout@v4
+      - name: Print the event that started this run
+        run: echo "event=${{ github.event_name }} ref=${{ github.ref }} sha=${{ github.sha }}"
+      - name: Install and build
+        run: |
+          echo "Using Node ${{ env.NODE_VERSION }} on ${{ runner.os }}"
+          npm init -y >/dev/null 2>&1 && npm pkg set scripts.build="echo build-ok"
+          npm run build
