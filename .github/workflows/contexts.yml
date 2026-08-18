@@ -1,0 +1,26 @@
+name: Contexts
+on: [push, workflow_dispatch]
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Expression contexts
+        run: |
+          echo "event_name  = ${{ github.event_name }}"
+          echo "ref         = ${{ github.ref }}"
+          echo "sha         = ${{ github.sha }}"
+          echo "run_number  = ${{ github.run_number }}"
+          echo "repository  = ${{ github.repository }}"
+          echo "actor       = ${{ github.actor }}"
+          echo "workspace   = ${{ github.workspace }}"
+          echo "runner.os   = ${{ runner.os }}"
+          echo "runner.arch = ${{ runner.arch }}"
+      - name: Predefined shell env vars
+        run: |
+          echo "GITHUB_SHA    = $GITHUB_SHA"
+          echo "GITHUB_RUN_ID = $GITHUB_RUN_ID"
+          echo "GITHUB_ACTOR  = $GITHUB_ACTOR"
+          echo "RUNNER_OS     = $RUNNER_OS"
+          echo "CI            = $CI"
