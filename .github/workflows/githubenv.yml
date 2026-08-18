@@ -1,0 +1,15 @@
+name: GITHUB_ENV
+on: [push, workflow_dispatch]
+
+jobs:
+  persist:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Step 1 — write to $GITHUB_ENV
+        run: echo "IMAGE_TAG=sha-${GITHUB_SHA::7}" >> "$GITHUB_ENV"
+      - name: Step 2 — plain export (dies with this step)
+        run: export LOST_VAR="gone after this step"
+      - name: Step 3 — what survived?
+        run: |
+          echo "IMAGE_TAG = $IMAGE_TAG"
+          echo "LOST_VAR  = ${LOST_VAR:-<empty — the export died>}"
