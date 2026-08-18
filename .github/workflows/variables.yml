@@ -1,0 +1,13 @@
+name: Variables
+on: [push, workflow_dispatch]
+
+env:
+  REGISTRY:  ${{ vars.IMAGE_REGISTRY }}
+  PREFERENCE: ${{ vars.PREFERENCE }}
+
+jobs:
+  show:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "REGISTRY=$REGISTRY PREFERENCE=$PREFERENCE"
+      - run: echo "vars.IMAGE_REGISTRY = ${{ vars.IMAGE_REGISTRY }}"
