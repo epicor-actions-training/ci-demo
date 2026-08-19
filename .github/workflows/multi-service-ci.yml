@@ -1,0 +1,56 @@
+name: Microservices CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  detect:
+    runs-on: ubuntu-latest
+    outputs:
+      checkout: ${{ steps.filter.outputs.checkout }}
+      orders: ${{ steps.filter.outputs.orders }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            checkout:
+              - 'services/checkout/**'
+            orders:
+              - 'services/orders/**'
+
+  build-services:
+    needs: detect
+    if: needs.detect.outputs.checkout == 'true' || needs.detect.outputs.orders == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - service: checkout
+            dockerfile: services/checkout/Dockerfile
+          - service: orders
+            dockerfile: services/orders/Dockerfile
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build ${{ matrix.service }}
+        run: |
+          echo "building ${{ matrix.service }} from ${{ matrix.dockerfile }}"
+          npm test --prefix services/${{ matrix.service }}
+
+  notify-failure:
+    needs: build-services
+    if: always() && needs.build-services.result == 'failure'
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "One or more services failed — notify the team"
